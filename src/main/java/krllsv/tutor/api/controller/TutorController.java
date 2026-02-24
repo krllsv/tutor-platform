@@ -1,7 +1,7 @@
-package krllsv.tutor;
+package krllsv.tutor.api.controller;
 
-import org.apache.coyote.Response;
-import org.slf4j.LoggerFactory;
+import krllsv.tutor.api.domain.Tutor;
+import krllsv.tutor.api.service.TutorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

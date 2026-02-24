@@ -1,4 +1,4 @@
-package krllsv.tutor;
+package krllsv.tutor.api.repository;
 
 public class TutorRepository {
 }

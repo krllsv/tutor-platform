@@ -1,4 +1,4 @@
-package krllsv.tutor;
+package krllsv.tutor.api.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
