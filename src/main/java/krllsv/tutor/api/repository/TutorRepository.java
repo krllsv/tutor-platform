@@ -50,7 +50,7 @@ public class TutorRepository {
         ));
     }
 
-    public ArrayList<Tutor> findAll() {
+    public List<Tutor> findAll() {
         return new ArrayList<>(tutors);
     }
 
