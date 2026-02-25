@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public class TutorRepository {
 
-    private final ArrayList<Tutor> tutors = new ArrayList<>();
+    private final List<Tutor> tutors = new ArrayList<>();
 
     @PostConstruct
     public void init() {
