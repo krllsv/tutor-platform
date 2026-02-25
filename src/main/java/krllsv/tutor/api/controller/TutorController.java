@@ -1,10 +1,14 @@
 package krllsv.tutor.api.controller;
 
-import krllsv.tutor.api.domain.Tutor;
+import krllsv.tutor.api.dto.TutorResponseDto;
+import krllsv.tutor.api.mapper.TutorMapper;
 import krllsv.tutor.api.service.TutorService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -13,32 +17,31 @@ import java.util.List;
 @RequestMapping("/tutor") // Все обработчики в классе будут начинаться со /tutor
 public class TutorController {
     private final TutorService tutorService;
+    private final TutorMapper tutorMapper;
 
-    public TutorController(TutorService tutorService) {
+    public TutorController(TutorService tutorService, TutorMapper tutorMapper) {
         this.tutorService = tutorService;
+        this.tutorMapper = tutorMapper;
     }
 
     @GetMapping("/{id}")                  // Указываем, что id приходит в пути
-    public ResponseEntity<Tutor> getTutorById(
+    public ResponseEntity<TutorResponseDto> getTutorById(
             @PathVariable("id") Long id     // и этот id передается сюда в этот параметр
-    ){
-        System.out.println("Called getTutorById");
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(tutorService.getTutorById(id));
+    ) {
+        TutorResponseDto tutor = tutorService.getTutorById(id);
+        return ResponseEntity.ok(tutor);
     }
 
-    @GetMapping()
-    public ResponseEntity<List<Tutor>> getAllTutors(){
-        System.out.println("Called getAllTutors");
-        return ResponseEntity.ok(tutorService.findAllTutors());
-    }
-
-    @PostMapping
-    public ResponseEntity<Tutor> createTutor(
-            @RequestBody Tutor tutorToCreate // tutor нужно взять из тела запроса
-    ){
-        System.out.println("Called createTutor");
-        return ResponseEntity.status(HttpStatus.CREATED) // equal to 201 - created
-                .body(tutorService.createTutor(tutorToCreate));
+    @GetMapping
+    public ResponseEntity<List<TutorResponseDto>> getTutorsBySubject(
+            @RequestParam(value = "subject", required = false) String subject
+    ) {
+        List<TutorResponseDto> tutors;
+        if (subject != null && !subject.isEmpty()) {
+            tutors = tutorService.getTutorBySubject(subject);
+        } else {
+            tutors = tutorService.findAllTutors();
+        }
+        return ResponseEntity.ok(tutors);
     }
 }
