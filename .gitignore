@@ -43,3 +43,7 @@ checkstyle.xml
 # Application properties с паролями
 application-*.properties
 application-*.yml
+!application-example.properties
+
+# Build
+dependency-reduced-pom.xml
