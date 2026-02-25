@@ -31,3 +31,15 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Maven wrapper
+.mvn/
+mvnw
+mvnw.cmd
+
+# Checkstyle
+checkstyle.xml
+
+# Application properties с паролями
+application-*.properties
+application-*.yml
