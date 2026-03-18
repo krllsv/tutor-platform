@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ReviewService {
@@ -108,14 +107,14 @@ public class ReviewService {
     public List<ReviewResponseDto> getReviewsByTutor(Long tutorId) {
         return reviewRepository.findByTutorId(tutorId).stream()
                 .map(this::buildFullResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public List<ReviewResponseDto> getReviewsByStudent(Long studentId) {
         return reviewRepository.findByStudentId(studentId).stream()
                 .map(this::buildFullResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private ReviewResponseDto buildFullResponse(ReviewEntity entity) {

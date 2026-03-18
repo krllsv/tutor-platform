@@ -16,6 +16,8 @@ import java.util.List;
 
 @Service
 public class TutorService {
+    private static final String NOT_FOUND = " not found.";
+
     private final TutorMapper tutorMapper;
     private final TutorRepository tutorRepository;
     private final SubjectRepository subjectRepository;
@@ -55,7 +57,7 @@ public class TutorService {
     @Transactional(readOnly = true)
     public TutorResponseDto getTutorById(Long id) {
         TutorEntity tutorEntity = tutorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Tutor with id " + id + " not found."));
+                .orElseThrow(() -> new EntityNotFoundException("Tutor with id " + id + NOT_FOUND));
 
         return tutorMapper.toResponseDto(tutorMapper.toDomain(tutorEntity));
     }
@@ -63,7 +65,7 @@ public class TutorService {
     @Transactional
     public TutorResponseDto updateTutor(Long id, TutorRequestDto requestDto) {
         TutorEntity existingEntity = tutorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Tutor with id " + id + " not found."));
+                .orElseThrow(() -> new EntityNotFoundException("Tutor with id " + id + NOT_FOUND));
 
         existingEntity.setFirstName(requestDto.getFirstName());
         existingEntity.setLastName(requestDto.getLastName());
@@ -73,7 +75,7 @@ public class TutorService {
 
         if (requestDto.getSubjectId() != null) {
             SubjectEntity subject = subjectRepository.findById(requestDto.getSubjectId())
-                    .orElseThrow(() -> new EntityNotFoundException("Subject with id " + id + " not found."));
+                    .orElseThrow(() -> new EntityNotFoundException("Subject with id " + id + NOT_FOUND));
             existingEntity.setSubject(subject);
         } else {
             existingEntity.setSubject(null);
@@ -85,7 +87,7 @@ public class TutorService {
     @Transactional
     public void deleteTutor(Long id) {
         if (!tutorRepository.existsById(id)) {
-            throw new EntityNotFoundException("Tutor with id " + id + " not found.");
+            throw new EntityNotFoundException("Tutor with id " + id + NOT_FOUND);
         }
         tutorRepository.deleteById(id);
     }

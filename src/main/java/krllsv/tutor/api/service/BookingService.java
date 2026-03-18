@@ -16,10 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
+    private static final String BOOKING_NOT_FOUND = "Booking not found with id: ";
 
     private final BookingRepository bookingRepository;
     private final StudentRepository studentRepository;
@@ -84,14 +84,14 @@ public class BookingService {
     @Transactional(readOnly = true)
     public BookingResponseDto getBookingById(Long id) {
         BookingEntity entity = bookingRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(BOOKING_NOT_FOUND + id));
         return buildFullResponse(entity);
     }
 
     @Transactional
     public BookingResponseDto updateBooking(Long id, BookingRequestDto requestDto) {
         BookingEntity existingEntity = bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(BOOKING_NOT_FOUND + id));
 
         existingEntity.setDateTime(requestDto.getDateTime());
         existingEntity.setDurationMinutes(requestDto.getDurationMinutes());
@@ -118,7 +118,7 @@ public class BookingService {
     @Transactional
     public void deleteBooking(Long id) {
         if (!bookingRepository.existsById(id)) {
-            throw new EntityNotFoundException("Booking not found with id: " + id);
+            throw new EntityNotFoundException(BOOKING_NOT_FOUND + id);
         }
         bookingRepository.deleteById(id);
     }
@@ -126,7 +126,7 @@ public class BookingService {
     @Transactional
     public BookingResponseDto changeStatus(Long id, String newStatus) {
         BookingEntity entity = bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(BOOKING_NOT_FOUND + id));
 
         if (!List.of("CONFIRMED", "CANCELLED", "COMPLETED").contains(newStatus)) {
             throw new IllegalArgumentException("Invalid status: " + newStatus);
@@ -140,14 +140,14 @@ public class BookingService {
     public List<BookingResponseDto> getBookingsByTutor(Long tutorId) {
         return bookingRepository.findByTutorId(tutorId).stream()
                 .map(this::buildFullResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public List<BookingResponseDto> getBookingsByStudent(Long studentId) {
         return bookingRepository.findByStudentId(studentId).stream()
                 .map(this::buildFullResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private BookingResponseDto buildFullResponse(BookingEntity entity) {

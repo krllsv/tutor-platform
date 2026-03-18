@@ -36,27 +36,15 @@ public class StudentService {
     }
 
     public void createWithoutTransaction(StudentRequestDto requestDto) {
-        StudentEntity student = studentMapper.toEntity(requestDto);
-        StudentEntity savedStudent = studentRepository.save(student);
-
-        if (requestDto.getSubjectIds() != null && !requestDto.getSubjectIds().isEmpty()) {
-            List<SubjectEntity> subjects = subjectRepository.findAllById(requestDto.getSubjectIds());
-
-            int count = 0;
-            for (SubjectEntity subject : subjects) {
-                count++;
-                savedStudent.getSubjects().add(subject);
-                studentRepository.save(savedStudent);
-
-                if (count == 2) {
-                    throw new RuntimeException("Ошибка при привязке 2-го предмета");
-                }
-            }
-        }
+        createStudentInternal(requestDto);
     }
 
     @Transactional
     public void createWithTransaction(StudentRequestDto requestDto) {
+        createStudentInternal(requestDto);
+    }
+
+    private void createStudentInternal(StudentRequestDto requestDto) {
         StudentEntity student = studentMapper.toEntity(requestDto);
         StudentEntity savedStudent = studentRepository.save(student);
 
