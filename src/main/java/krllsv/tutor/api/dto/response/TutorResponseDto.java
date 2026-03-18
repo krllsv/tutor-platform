@@ -1,4 +1,4 @@
-package krllsv.tutor.api.dto;
+package krllsv.tutor.api.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,8 +12,8 @@ import java.math.BigDecimal;
 public class TutorResponseDto {
     private Long id;
     private String fullname;
-    private String subject;
     private BigDecimal hourlyRate;
     private int experienceYears;
-    private Double rating;
+    private Long subjectId;
+    private String subjectName;
 }

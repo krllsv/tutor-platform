@@ -47,3 +47,10 @@ application-*.yml
 
 # Build
 dependency-reduced-pom.xml
+
+# Checkstyle (ДОБАВЛЕНО)
+checkstyle.xml
+
+# Git attributes (ДОБАВЛЕНО)
+.gitattributes
+
