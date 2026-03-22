@@ -14,9 +14,6 @@ public interface StudentRepository extends JpaRepository<StudentEntity, Long> {
     @Query("SELECT DISTINCT s FROM StudentEntity s LEFT JOIN FETCH s.subjects")
     List<StudentEntity> findAllWithSubjects();
 
-    @Query("SELECT DISTINCT s FROM StudentEntity s LEFT JOIN FETCH s.bookings")
-    List<StudentEntity> findAllWithBookings();
-
     @Query("SELECT s FROM StudentEntity s " +
             "LEFT JOIN FETCH s.subjects " +
             "WHERE s.id = :id")
