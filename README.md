@@ -9,6 +9,19 @@
 
 ---
 
+**1ЛАБА:**
+1. Создать Spring Boot приложение.
+2. Реализовать REST API для одной ключевой сущности своей предметной области (domain).
+3. Реализовать:
+   - GET endpoint с @RequestParam
+   - GET endpoint с @PathVariable
+4. Реализовать слои: Controller → Service → Repository.
+5. Реализовать DTO и mapper между Entity и API-ответом.
+6. Настроить Checkstyle и привести код к стилю.
+
+---
+
+**2ЛАБА:**
 1. Подключить реляционную БД к проекту.
 2. В модели данных реализовать минимум 5 сущностей:
    - минимум одну связь OneToMany
@@ -24,8 +37,60 @@
 **Сонар**: https://sonarcloud.io/projects
 
 ## ER-диаграмма
-![ER-диаграмма](images/diagramma.png)
 
-
+```mermaid
+erDiagram
+    TUTOR ||--o{ SUBJECT : teaches
+    TUTOR ||--o{ BOOKING : has
+    TUTOR ||--o{ REVIEW : receives
+    STUDENT ||--o{ BOOKING : makes
+    STUDENT ||--o{ REVIEW : writes
+    STUDENT }o--o{ SUBJECT : studies
+    
+    TUTOR {
+        Long id PK
+        string first_name
+        string last_name
+        decimal hourly_rate
+        int start_year
+        string email UK
+        Long subject_id FK
+    }
+    
+    STUDENT {
+        Long id PK
+        string first_name
+        string last_name
+        string phone
+        string email UK
+        decimal budget
+    }
+    
+    SUBJECT {
+        Long id PK
+        string name UK
+        string category
+        string description
+    }
+    
+    BOOKING {
+        Long id PK
+        datetime date_time
+        int duration_minutes
+        string status
+        string message
+        Long student_id FK
+        Long tutor_id FK
+    }
+    
+    REVIEW {
+        Long id PK
+        int rating
+        string comment
+        datetime created_at
+        Long student_id FK
+        Long tutor_id FK
+    }
+```
 
 
