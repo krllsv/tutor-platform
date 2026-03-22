@@ -58,7 +58,7 @@ public class StudentService {
                 studentRepository.save(savedStudent);
 
                 if (count == 2) {
-                    throw new IllegalStateException("Ошибка при привязке 2-го предмета");
+                    throw new IllegalStateException("Ошибка при привязке 3-го предмета");
                 }
             }
         }

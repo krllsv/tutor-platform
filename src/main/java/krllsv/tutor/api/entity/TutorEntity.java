@@ -40,7 +40,7 @@ public class TutorEntity {
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "subject_id")
     private SubjectEntity subject;
 
