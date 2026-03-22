@@ -24,7 +24,6 @@
 **Сонар**: https://sonarcloud.io/projects
 
 ## ER-диаграмма
-## ER-диаграмма
 
 ```mermaid
 erDiagram
@@ -33,7 +32,8 @@ erDiagram
     TUTOR ||--o{ REVIEW : receives
     STUDENT ||--o{ BOOKING : makes
     STUDENT ||--o{ REVIEW : writes
-    STUDENT }o--o{ SUBJECT : studies
+    STUDENT ||--o{ STUDENT_SUBJECT : has
+    SUBJECT ||--o{ STUDENT_SUBJECT : has
     
     TUTOR {
         Long id PK
@@ -61,6 +61,11 @@ erDiagram
         string description
     }
     
+    STUDENT_SUBJECT {
+        Long student_id PK
+        Long subject_id PK
+    }
+    
     BOOKING {
         Long id PK
         datetime date_time
@@ -80,7 +85,6 @@ erDiagram
         Long tutor_id FK
     }
 ```
-
 
 
 
