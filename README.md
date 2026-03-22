@@ -24,7 +24,62 @@
 **Сонар**: https://sonarcloud.io/projects
 
 ## ER-диаграмма
-![ER-диаграмма](images/diagramma.png)
+## ER-диаграмма
+
+```mermaid
+erDiagram
+    TUTOR ||--o{ SUBJECT : teaches
+    TUTOR ||--o{ BOOKING : has
+    TUTOR ||--o{ REVIEW : receives
+    STUDENT ||--o{ BOOKING : makes
+    STUDENT ||--o{ REVIEW : writes
+    STUDENT }o--o{ SUBJECT : studies
+    
+    TUTOR {
+        Long id PK
+        string first_name
+        string last_name
+        decimal hourly_rate
+        int start_year
+        string email UK
+        Long subject_id FK
+    }
+    
+    STUDENT {
+        Long id PK
+        string first_name
+        string last_name
+        string phone
+        string email UK
+        decimal budget
+    }
+    
+    SUBJECT {
+        Long id PK
+        string name UK
+        string category
+        string description
+    }
+    
+    BOOKING {
+        Long id PK
+        datetime date_time
+        int duration_minutes
+        string status
+        string message
+        Long student_id FK
+        Long tutor_id FK
+    }
+    
+    REVIEW {
+        Long id PK
+        int rating
+        string comment
+        datetime created_at
+        Long student_id FK
+        Long tutor_id FK
+    }
+```
 
 
 
