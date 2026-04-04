@@ -31,6 +31,26 @@ public class TutorService {
         this.subjectRepository = subjectRepository;
     }
 
+    @Transactional(readOnly = true)
+    public List<TutorResponseDto> getTutorsBySubjectName(String subjectName) {
+        List<TutorEntity> tutors = tutorRepository.findTutorsBySubjectName(subjectName);
+
+        return tutors.stream()
+                .map(tutorMapper::toDomain)
+                .map(tutorMapper::toResponseDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TutorResponseDto> getTutorsBySubjectNameNative(String subjectName) {
+        List<TutorEntity> tutors = tutorRepository.findTutorsBySubjectNameNative(subjectName);
+
+        return tutors.stream()
+                .map(tutorMapper::toDomain)
+                .map(tutorMapper::toResponseDto)
+                .toList();
+    }
+
     @Transactional
     public TutorResponseDto createTutor(TutorRequestDto requestDto) {
         TutorEntity tutorEntity = tutorMapper.toEntity(requestDto);
