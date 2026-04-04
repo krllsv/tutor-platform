@@ -42,13 +42,11 @@ public class TutorService {
     }
 
     @Transactional(readOnly = true)
-    public List<TutorResponseDto> getTutorsBySubjectNameNative(String subjectName) {
-        List<TutorEntity> tutors = tutorRepository.findTutorsBySubjectNameNative(subjectName);
+    public Page<TutorResponseDto> getTutorsBySubjectNameNative(String subjectName, Pageable pageable) {
+        Page<TutorEntity> tutors = tutorRepository.findTutorsBySubjectNameNative(subjectName, pageable);
 
-        return tutors.stream()
-                .map(tutorMapper::toDomain)
-                .map(tutorMapper::toResponseDto)
-                .toList();
+        return tutors.map(tutorMapper::toDomain)
+                .map(tutorMapper::toResponseDto);
     }
 
     @Transactional

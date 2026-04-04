@@ -48,9 +48,19 @@ public class TutorController {
     }
 
     @GetMapping("/by-subject-native")
-    public ResponseEntity<List<TutorResponseDto>> getTutorsBySubjectNameNative(
-            @RequestParam String subject) {
-        List<TutorResponseDto> tutors = tutorService.getTutorsBySubjectNameNative(subject);
+    public ResponseEntity<Page<TutorResponseDto>> getTutorsBySubjectNameNative(
+            @RequestParam String subject,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<TutorResponseDto> tutors = tutorService.getTutorsBySubjectNameNative(subject, pageable);
         return ResponseEntity.ok(tutors);
     }
 

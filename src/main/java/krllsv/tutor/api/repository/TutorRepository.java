@@ -23,6 +23,9 @@ public interface TutorRepository extends JpaRepository<TutorEntity, Long> {
     @Query(value = "SELECT DISTINCT t.* FROM tutors t " +
             "JOIN subjects s ON t.subject_id = s.id " +
             "WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :subjectName, '%'))",
+            countQuery = "SELECT COUNT(DISTINCT t.id) FROM tutors t " +
+                    "JOIN subjects s ON t.subject_id = s.id " +
+                    "WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :subjectName, '%'))",
             nativeQuery = true)
-    List<TutorEntity> findTutorsBySubjectNameNative(@Param("subjectName") String subjectName);
+    Page<TutorEntity> findTutorsBySubjectNameNative(@Param("subjectName") String subjectName, Pageable pageable);
 }
