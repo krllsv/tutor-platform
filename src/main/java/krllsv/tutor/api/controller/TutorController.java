@@ -3,6 +3,10 @@ package krllsv.tutor.api.controller;
 import krllsv.tutor.api.dto.request.TutorRequestDto;
 import krllsv.tutor.api.dto.response.TutorResponseDto;
 import krllsv.tutor.api.service.TutorService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,9 +31,19 @@ public class TutorController {
     }
 
     @GetMapping("/by-subject")
-    public ResponseEntity<List<TutorResponseDto>> getTutorsBySubjectName(
-            @RequestParam String subject) {
-        List<TutorResponseDto> tutors = tutorService.getTutorsBySubjectName(subject);
+    public ResponseEntity<Page<TutorResponseDto>> getTutorsBySubjectName(
+            @RequestParam String subject,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<TutorResponseDto> tutors = tutorService.getTutorsBySubjectName(subject, pageable);
         return ResponseEntity.ok(tutors);
     }
 

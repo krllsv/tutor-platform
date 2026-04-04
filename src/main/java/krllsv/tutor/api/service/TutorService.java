@@ -4,6 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 import krllsv.tutor.api.domain.Tutor;
 import krllsv.tutor.api.entity.SubjectEntity;
 import krllsv.tutor.api.repository.SubjectRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import krllsv.tutor.api.dto.request.TutorRequestDto;
 import krllsv.tutor.api.entity.TutorEntity;
@@ -32,13 +34,11 @@ public class TutorService {
     }
 
     @Transactional(readOnly = true)
-    public List<TutorResponseDto> getTutorsBySubjectName(String subjectName) {
-        List<TutorEntity> tutors = tutorRepository.findTutorsBySubjectName(subjectName);
+    public Page<TutorResponseDto> getTutorsBySubjectName(String subjectName, Pageable pageable) {
+        Page<TutorEntity> tutors = tutorRepository.findTutorsBySubjectName(subjectName, pageable);
 
-        return tutors.stream()
-                .map(tutorMapper::toDomain)
-                .map(tutorMapper::toResponseDto)
-                .toList();
+        return tutors.map(tutorMapper::toDomain)
+                .map(tutorMapper::toResponseDto);
     }
 
     @Transactional(readOnly = true)
