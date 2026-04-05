@@ -1,6 +1,7 @@
 package krllsv.tutor.api.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import krllsv.tutor.api.cache.QueryCache;
 import krllsv.tutor.api.domain.Tutor;
 import krllsv.tutor.api.entity.SubjectEntity;
 import krllsv.tutor.api.repository.SubjectRepository;
@@ -23,30 +24,51 @@ public class TutorService {
     private final TutorMapper tutorMapper;
     private final TutorRepository tutorRepository;
     private final SubjectRepository subjectRepository;
+    private final QueryCache queryCache;
 
     public TutorService(TutorMapper tutorMapper,
                         TutorRepository tutorRepository,
-                        SubjectRepository subjectRepository
+                        SubjectRepository subjectRepository,
+                        QueryCache queryCache
     ) {
         this.tutorMapper = tutorMapper;
         this.tutorRepository = tutorRepository;
         this.subjectRepository = subjectRepository;
+        this.queryCache = queryCache;
     }
 
     @Transactional(readOnly = true)
     public Page<TutorResponseDto> getTutorsBySubjectName(String subjectName, Pageable pageable) {
-        Page<TutorEntity> tutors = tutorRepository.findTutorsBySubjectName(subjectName, pageable);
+        String sortBy = pageable.getSort().isSorted() ?
+                pageable.getSort().iterator().next().getProperty() : "id";
+        String sortDir = pageable.getSort().isSorted() &&
+                pageable.getSort().iterator().next().isAscending() ? "asc" : "desc";
 
-        return tutors.map(tutorMapper::toDomain)
-                .map(tutorMapper::toResponseDto);
+        return queryCache.get("by-subject", subjectName,
+                pageable.getPageNumber(), pageable.getPageSize(),
+                sortBy, sortDir,
+                () -> {
+                    Page<TutorEntity> tutors = tutorRepository.findTutorsBySubjectName(subjectName, pageable);
+                    return tutors.map(tutorMapper::toDomain)
+                            .map(tutorMapper::toResponseDto);
+                });
     }
 
     @Transactional(readOnly = true)
     public Page<TutorResponseDto> getTutorsBySubjectNameNative(String subjectName, Pageable pageable) {
-        Page<TutorEntity> tutors = tutorRepository.findTutorsBySubjectNameNative(subjectName, pageable);
+        String sortBy = pageable.getSort().isSorted() ?
+                pageable.getSort().iterator().next().getProperty() : "id";
+        String sortDir = pageable.getSort().isSorted() &&
+                pageable.getSort().iterator().next().isAscending() ? "asc" : "desc";
 
-        return tutors.map(tutorMapper::toDomain)
-                .map(tutorMapper::toResponseDto);
+        return queryCache.get("by-subject-native", subjectName,
+                pageable.getPageNumber(), pageable.getPageSize(),
+                sortBy, sortDir,
+                () -> {
+                    Page<TutorEntity> tutors = tutorRepository.findTutorsBySubjectNameNative(subjectName, pageable);
+                    return tutors.map(tutorMapper::toDomain)
+                            .map(tutorMapper::toResponseDto);
+                });
     }
 
     @Transactional
@@ -59,6 +81,10 @@ public class TutorService {
             tutorEntity.setSubject(subject);
         }
         TutorEntity savedTutorEntity = tutorRepository.save(tutorEntity);
+
+        queryCache.invalidateByEndpoint("by-subject");
+        queryCache.invalidateByEndpoint("by-subject-native");
+
         Tutor tutor = tutorMapper.toDomain(savedTutorEntity);
         return tutorMapper.toResponseDto(tutor);
     }
@@ -99,6 +125,10 @@ public class TutorService {
             existingEntity.setSubject(null);
         }
         TutorEntity updatedEntity = tutorRepository.save(existingEntity);
+
+        queryCache.invalidateByEndpoint("by-subject");
+        queryCache.invalidateByEndpoint("by-subject-native");
+
         return tutorMapper.toResponseDto(tutorMapper.toDomain(updatedEntity));
     }
 
@@ -108,5 +138,8 @@ public class TutorService {
             throw new EntityNotFoundException("Tutor with id " + id + NOT_FOUND);
         }
         tutorRepository.deleteById(id);
+
+        queryCache.invalidateByEndpoint("by-subject");
+        queryCache.invalidateByEndpoint("by-subject-native");
     }
 }
