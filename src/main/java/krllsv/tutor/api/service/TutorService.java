@@ -6,6 +6,7 @@ import krllsv.tutor.api.domain.Tutor;
 import krllsv.tutor.api.entity.SubjectEntity;
 import krllsv.tutor.api.repository.SubjectRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import krllsv.tutor.api.dto.request.TutorRequestDto;
@@ -20,6 +21,8 @@ import java.util.List;
 @Service
 public class TutorService {
     private static final String NOT_FOUND = " not found.";
+    private static final String ENDPOINT_BY_SUBJECT = "by-subject";
+    private static final String ENDPOINT_BY_SUBJECT_NATIVE = "by-subject-native";
 
     private final TutorMapper tutorMapper;
     private final TutorRepository tutorRepository;
@@ -44,7 +47,7 @@ public class TutorService {
         String sortDir = pageable.getSort().isSorted() &&
                 pageable.getSort().iterator().next().isAscending() ? "asc" : "desc";
 
-        return queryCache.get("by-subject", subjectName,
+        return queryCache.get(ENDPOINT_BY_SUBJECT, subjectName,
                 pageable.getPageNumber(), pageable.getPageSize(),
                 sortBy, sortDir,
                 () -> {
@@ -61,13 +64,15 @@ public class TutorService {
         String sortDir = pageable.getSort().isSorted() &&
                 pageable.getSort().iterator().next().isAscending() ? "asc" : "desc";
 
-        return queryCache.get("by-subject-native", subjectName,
+        return queryCache.get(ENDPOINT_BY_SUBJECT_NATIVE, subjectName,
                 pageable.getPageNumber(), pageable.getPageSize(),
                 sortBy, sortDir,
                 () -> {
-                    Page<TutorEntity> tutors = tutorRepository.findTutorsBySubjectNameNative(subjectName, pageable);
-                    return tutors.map(tutorMapper::toDomain)
-                            .map(tutorMapper::toResponseDto);
+                    Page<Object[]> page = tutorRepository.findTutorsBySubjectNameNative(subjectName, pageable);
+                    List<TutorResponseDto> content = page.getContent().stream()
+                            .map(tutorMapper::toResponseDtoFromNative)
+                            .toList();
+                    return new PageImpl<>(content, pageable, page.getTotalElements());
                 });
     }
 
@@ -82,8 +87,8 @@ public class TutorService {
         }
         TutorEntity savedTutorEntity = tutorRepository.save(tutorEntity);
 
-        queryCache.invalidateByEndpoint("by-subject");
-        queryCache.invalidateByEndpoint("by-subject-native");
+        queryCache.invalidateByEndpoint(ENDPOINT_BY_SUBJECT);
+        queryCache.invalidateByEndpoint(ENDPOINT_BY_SUBJECT_NATIVE);
 
         Tutor tutor = tutorMapper.toDomain(savedTutorEntity);
         return tutorMapper.toResponseDto(tutor);
@@ -126,8 +131,8 @@ public class TutorService {
         }
         TutorEntity updatedEntity = tutorRepository.save(existingEntity);
 
-        queryCache.invalidateByEndpoint("by-subject");
-        queryCache.invalidateByEndpoint("by-subject-native");
+        queryCache.invalidateByEndpoint(ENDPOINT_BY_SUBJECT);
+        queryCache.invalidateByEndpoint(ENDPOINT_BY_SUBJECT_NATIVE);
 
         return tutorMapper.toResponseDto(tutorMapper.toDomain(updatedEntity));
     }
@@ -139,7 +144,7 @@ public class TutorService {
         }
         tutorRepository.deleteById(id);
 
-        queryCache.invalidateByEndpoint("by-subject");
-        queryCache.invalidateByEndpoint("by-subject-native");
+        queryCache.invalidateByEndpoint(ENDPOINT_BY_SUBJECT);
+        queryCache.invalidateByEndpoint(ENDPOINT_BY_SUBJECT_NATIVE);
     }
 }

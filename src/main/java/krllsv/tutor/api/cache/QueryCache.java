@@ -1,5 +1,7 @@
 package krllsv.tutor.api.cache;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,6 +10,7 @@ import java.util.function.Supplier;
 @Component
 public class QueryCache {
 
+    private static final Logger LOG = LoggerFactory.getLogger(QueryCache.class);
     private final Map<QueryKey, Object> cache = new HashMap<>();
 
     @SuppressWarnings("unchecked")
@@ -22,11 +25,11 @@ public class QueryCache {
         QueryKey key = new QueryKey(endpoint, subject, page, size, sortBy, sortDir);
 
         if (cache.containsKey(key)) {
-            System.out.println("[CACHE HIT] " + endpoint + "?subject=" + subject + "&page=" + page);
+            LOG.info("[CACHE HIT] {}?subject={}&page={}", endpoint, subject, page);
             return (T) cache.get(key);
         }
 
-        System.out.println("[CACHE MISS] " + endpoint + "?subject=" + subject + "&page=" + page);
+        LOG.info("[CACHE MISS] {}?subject={}&page={}", endpoint, subject, page);
         T result = dbQuery.get();
         put(endpoint, subject, page, size, sortBy, sortDir, result);
         return result;
@@ -42,11 +45,11 @@ public class QueryCache {
     ) {
         QueryKey key = new QueryKey(endpoint, subject, page, size, sortBy, sortDir);
         cache.put(key, result);
-        System.out.println("[CACHE PUT] " + endpoint + "?subject=" + subject + "&page=" + page);
+        LOG.info("[CACHE PUT] {}?subject={}&page={}", endpoint, subject, page);
     }
 
     public void invalidateByEndpoint(String endpoint) {
         cache.keySet().removeIf(key -> endpoint.equals(key.getEndpoint()));
-        System.out.println("[CACHE INVALIDATED] " + endpoint);
+        LOG.info("[CACHE INVALIDATED] {}", endpoint);
     }
 }

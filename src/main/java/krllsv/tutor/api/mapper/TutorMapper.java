@@ -7,6 +7,9 @@ import krllsv.tutor.api.dto.response.TutorResponseDto;
 import krllsv.tutor.api.entity.TutorEntity;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.time.Year;
+
 @Component
 public class TutorMapper {
     private final SubjectMapper subjectMapper;
@@ -62,6 +65,28 @@ public class TutorMapper {
             dto.setSubjectId(tutor.getSubject().getId());
             dto.setSubjectName(tutor.getSubject().getName());
         }
+        return dto;
+    }
+
+    public TutorResponseDto toResponseDtoFromNative(Object[] row) {
+        if (row == null) return null;
+
+        TutorResponseDto dto = new TutorResponseDto();
+
+        dto.setId(((Number) row[0]).longValue());
+
+        String firstName = (String) row[1];
+        String lastName = (String) row[2];
+        dto.setFullname(firstName + " " + lastName);
+
+        dto.setHourlyRate((BigDecimal) row[4]);
+
+        Integer startYear = (Integer) row[5];
+        dto.setExperienceYears(Year.now().getValue() - startYear);
+
+        dto.setSubjectId(((Number) row[6]).longValue());
+        dto.setSubjectName((String) row[7]);
+
         return dto;
     }
 }

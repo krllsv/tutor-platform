@@ -53,15 +53,15 @@ public class TutorController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir
-    ) {
+            @RequestParam(defaultValue = "asc") String sortDir) {
+
         Sort sort = sortDir.equalsIgnoreCase("asc") ?
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<TutorResponseDto> tutors = tutorService.getTutorsBySubjectNameNative(subject, pageable);
-        return ResponseEntity.ok(tutors);
+        Page<TutorResponseDto> result = tutorService.getTutorsBySubjectNameNative(subject, pageable);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping
