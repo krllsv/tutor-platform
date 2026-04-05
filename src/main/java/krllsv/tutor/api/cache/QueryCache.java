@@ -25,11 +25,11 @@ public class QueryCache {
         QueryKey key = new QueryKey(endpoint, subject, page, size, sortBy, sortDir);
 
         if (cache.containsKey(key)) {
-            LOG.info("[CACHE HIT] {}?subject={}&page={}", endpoint, subject, page);
+            LOG.info("[CACHE HIT] {}?page={}", endpoint, page);
             return (T) cache.get(key);
         }
 
-        LOG.info("[CACHE MISS] {}?subject={}&page={}", endpoint, subject, page);
+        LOG.info("[CACHE MISS] {}?page={}", endpoint, page);
         T result = dbQuery.get();
         put(endpoint, subject, page, size, sortBy, sortDir, result);
         return result;
@@ -45,7 +45,7 @@ public class QueryCache {
     ) {
         QueryKey key = new QueryKey(endpoint, subject, page, size, sortBy, sortDir);
         cache.put(key, result);
-        LOG.info("[CACHE PUT] {}?subject={}&page={}", endpoint, subject, page);
+        LOG.info("[CACHE PUT] {}&page={}", endpoint, page);
     }
 
     public void invalidateByEndpoint(String endpoint) {
