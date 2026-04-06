@@ -56,6 +56,7 @@
 ---
 
 **Сонар**: https://sonarcloud.io/projects
+
 **Swagger**: http://localhost:8080/swagger-ui/index.html
 
 ## ER-диаграмма
