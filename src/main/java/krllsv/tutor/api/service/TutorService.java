@@ -5,6 +5,7 @@ import krllsv.tutor.api.cache.QueryCache;
 import krllsv.tutor.api.domain.Tutor;
 import krllsv.tutor.api.entity.SubjectEntity;
 import krllsv.tutor.api.repository.SubjectRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class TutorService {
     private static final String NOT_FOUND = " not found.";
@@ -44,11 +46,13 @@ public class TutorService {
 
     @Transactional(readOnly = true)
     public Page<TutorResponseDto> getTutorsBySubjectName(String subjectName, Pageable pageable) {
+        log.info("JPQL query: searching tutors by subject: {}", subjectName);
         return getCachedTutors(ENDPOINT_BY_SUBJECT, subjectName, pageable, false);
     }
 
     @Transactional(readOnly = true)
     public Page<TutorResponseDto> getTutorsBySubjectNameNative(String subjectName, Pageable pageable) {
+        log.info("Native query: searching tutors by subject: {}", subjectName);
         return getCachedTutors(ENDPOINT_BY_SUBJECT_NATIVE, subjectName, pageable, true);
     }
 

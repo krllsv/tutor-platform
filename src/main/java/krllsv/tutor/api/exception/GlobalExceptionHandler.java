@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
 
-        log.warn("Resource not found: {} - {}", request.getRequestURI(), ex.getMessage());
+        log.warn("404 Not Found: {} - {}", request.getRequestURI(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -42,6 +42,7 @@ public class GlobalExceptionHandler {
             IllegalArgumentException ex,
             HttpServletRequest request) {
 
+        log.warn("400 Bad Request: {} - {}", request.getRequestURI(), ex.getMessage());
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
@@ -49,8 +50,6 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getRequestURI()
         );
-
-        log.warn("Bad request: {} - {}", request.getRequestURI(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
@@ -59,15 +58,15 @@ public class GlobalExceptionHandler {
             RuntimeException ex,
             HttpServletRequest request) {
 
+        log.error("500 Internal Error: {} - {}", request.getRequestURI(), ex.getMessage(), ex);
+
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Internal Server Error",
-                "An unexpected error occurred",
+                ex.getMessage(),
                 request.getRequestURI()
         );
-
-        log.error("Runtime error in request {}: {}", request.getRequestURI(), ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
@@ -76,6 +75,8 @@ public class GlobalExceptionHandler {
             Exception ex,
             HttpServletRequest request) {
 
+        log.error("500 Internal Error: {} - {}", request.getRequestURI(), ex.getMessage(), ex);
+
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -83,8 +84,6 @@ public class GlobalExceptionHandler {
                 "An unexpected error occurred",
                 request.getRequestURI()
         );
-
-        log.error("Unexpected error in request {}: {}", request.getRequestURI(), ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
@@ -97,6 +96,8 @@ public class GlobalExceptionHandler {
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             errors.put(error.getField(), error.getDefaultMessage());
         }
+
+        log.warn("400 Validation Failed: {} - {}", request.getRequestURI(), errors);
 
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),
@@ -119,6 +120,8 @@ public class GlobalExceptionHandler {
             ResponseStatusException ex,
             HttpServletRequest request
     ) {
+        log.warn("{} Conflict: {} - {}", ex.getStatusCode().value(),
+                request.getRequestURI(), ex.getReason());
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),
                 ex.getStatusCode().value(),
