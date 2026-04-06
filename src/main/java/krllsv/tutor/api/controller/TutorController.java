@@ -3,6 +3,7 @@ package krllsv.tutor.api.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import krllsv.tutor.api.dto.request.TutorRequestDto;
 import krllsv.tutor.api.dto.response.TutorResponseDto;
@@ -26,7 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/tutors") // Все обработчики в классе будут начинаться со /tutor
+@RequestMapping("/api/tutors") // Все обработчики в классе будут начинаться со /tutor4
+@Tag(name = "Tutor Controller", description = "Управление репетиторами")
 public class TutorController {
     private final TutorService tutorService;
 
@@ -34,12 +36,12 @@ public class TutorController {
         this.tutorService = tutorService;
     }
 
+    @GetMapping("/by-subject")
     @Operation(summary = "Поиск преподавателей по предмету (JPQL)",
             description = "Возвращает преподавателей, ведущих указанный предмет. Поддерживает пагинацию и сортировку.")
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Успешно"),
                             @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")
     })
-    @GetMapping("/by-subject")
     public ResponseEntity<Page<TutorResponseDto>> getTutorsBySubjectName(
             @RequestParam String subject,
             @RequestParam(defaultValue = "0") int page,
@@ -56,12 +58,12 @@ public class TutorController {
         return ResponseEntity.ok(tutors);
     }
 
+    @GetMapping("/by-subject-native")
     @Operation(summary = "Поиск преподавателей по предмету (Native Query)",
             description = "Возвращает преподавателей, ведущих указанный предмет. Поддерживает пагинацию и сортировку.")
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Успешно"),
                             @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса")
     })
-    @GetMapping("/by-subject-native")
     public ResponseEntity<Page<TutorResponseDto>> getTutorsBySubjectNameNative(
             @RequestParam String subject,
             @RequestParam(defaultValue = "0") int page,
@@ -78,36 +80,36 @@ public class TutorController {
         return ResponseEntity.ok(result);
     }
 
+    @PostMapping
     @Operation(summary = "Создать преподавателя", description = "Создаёт нового преподавателя")
     @ApiResponse(responseCode = "201", description = "Преподаватель создан")
     @ApiResponse(responseCode = "400", description = "Некорректные данные запроса")
-    @PostMapping
     public ResponseEntity<TutorResponseDto> createTutor(@Valid @RequestBody TutorRequestDto tutorRequestDto) {
         TutorResponseDto created = tutorService.createTutor(tutorRequestDto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
+    @GetMapping
     @Operation(summary = "Получить всех преподавателей", description = "Возвращает список всех преподавателей")
     @ApiResponse(responseCode = "200", description = "Успешно")
-    @GetMapping
     public ResponseEntity<List<TutorResponseDto>> getAllTutors() {
         List<TutorResponseDto> tutors = tutorService.getAllTutors();
         return ResponseEntity.ok(tutors);
     }
 
+    @GetMapping("/{id}")
     @Operation(summary = "Получить преподавателя по ID", description = "Возвращает преподавателя по указанному ID")
     @ApiResponse(responseCode = "200", description = "Успешно")
     @ApiResponse(responseCode = "404", description = "Преподаватель не найден")
-    @GetMapping("/{id}")
     public ResponseEntity<TutorResponseDto> getTutorById(@PathVariable Long id) {
         TutorResponseDto tutor = tutorService.getTutorById(id);
         return ResponseEntity.ok(tutor);
     }
 
+    @PutMapping("/{id}")
     @Operation(summary = "Обновить преподавателя", description = "Обновляет данные преподавателя по ID")
     @ApiResponse(responseCode = "200", description = "Успешно обновлено")
     @ApiResponse(responseCode = "404", description = "Преподаватель не найден")
-    @PutMapping("/{id}")
     public ResponseEntity<TutorResponseDto> updateTutor(
             @PathVariable Long id,
             @Valid @RequestBody TutorRequestDto requestDto) {
@@ -115,10 +117,10 @@ public class TutorController {
         return ResponseEntity.ok(updated);
     }
 
+    @DeleteMapping("/{id}")
     @Operation(summary = "Удалить преподавателя", description = "Удаляет преподавателя по ID")
     @ApiResponse(responseCode = "204", description = "Успешно удалено")
     @ApiResponse(responseCode = "404", description = "Преподаватель не найден")
-    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTutor(@PathVariable Long id) {
         tutorService.deleteTutor(id);
         return ResponseEntity.noContent().build();
