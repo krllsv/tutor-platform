@@ -8,6 +8,7 @@ import krllsv.tutor.api.repository.SubjectRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import krllsv.tutor.api.dto.request.TutorRequestDto;
 import krllsv.tutor.api.entity.TutorEntity;
@@ -15,6 +16,7 @@ import krllsv.tutor.api.dto.response.TutorResponseDto;
 import krllsv.tutor.api.mapper.TutorMapper;
 import krllsv.tutor.api.repository.TutorRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -42,43 +44,51 @@ public class TutorService {
 
     @Transactional(readOnly = true)
     public Page<TutorResponseDto> getTutorsBySubjectName(String subjectName, Pageable pageable) {
-        String sortBy = pageable.getSort().isSorted() ?
-                pageable.getSort().iterator().next().getProperty() : "id";
-        String sortDir = pageable.getSort().isSorted() &&
-                pageable.getSort().iterator().next().isAscending() ? "asc" : "desc";
-
-        return queryCache.get(ENDPOINT_BY_SUBJECT, subjectName,
-                pageable.getPageNumber(), pageable.getPageSize(),
-                sortBy, sortDir,
-                () -> {
-                    Page<TutorEntity> tutors = tutorRepository.findTutorsBySubjectName(subjectName, pageable);
-                    return tutors.map(tutorMapper::toDomain)
-                            .map(tutorMapper::toResponseDto);
-                });
+        return getCachedTutors(ENDPOINT_BY_SUBJECT, subjectName, pageable, false);
     }
 
     @Transactional(readOnly = true)
     public Page<TutorResponseDto> getTutorsBySubjectNameNative(String subjectName, Pageable pageable) {
+        return getCachedTutors(ENDPOINT_BY_SUBJECT_NATIVE, subjectName, pageable, true);
+    }
+
+    private Page<TutorResponseDto> getCachedTutors(
+            String endpoint,
+            String subjectName,
+            Pageable pageable,
+            boolean isNative
+    ) {
         String sortBy = pageable.getSort().isSorted() ?
                 pageable.getSort().iterator().next().getProperty() : "id";
         String sortDir = pageable.getSort().isSorted() &&
                 pageable.getSort().iterator().next().isAscending() ? "asc" : "desc";
 
-        return queryCache.get(ENDPOINT_BY_SUBJECT_NATIVE, subjectName,
+        return queryCache.get(endpoint, subjectName,
                 pageable.getPageNumber(), pageable.getPageSize(),
                 sortBy, sortDir,
                 () -> {
-                    Page<Object[]> page = tutorRepository.findTutorsBySubjectNameNative(subjectName, pageable);
-                    List<TutorResponseDto> content = page.getContent().stream()
-                            .map(tutorMapper::toResponseDtoFromNative)
-                            .toList();
-                    return new PageImpl<>(content, pageable, page.getTotalElements());
+                    if (isNative) {
+                        Page<Object[]> page = tutorRepository.findTutorsBySubjectNameNative(subjectName, pageable);
+                        List<TutorResponseDto> content = page.getContent().stream()
+                                .map(tutorMapper::toResponseDtoFromNative)
+                                .toList();
+                        return new PageImpl<>(content, pageable, page.getTotalElements());
+                    } else {
+                        Page<TutorEntity> tutors = tutorRepository.findTutorsBySubjectName(subjectName, pageable);
+                        return tutors.map(tutorMapper::toDomain)
+                                .map(tutorMapper::toResponseDto);
+                    }
                 });
     }
 
     @Transactional
     public TutorResponseDto createTutor(TutorRequestDto requestDto) {
         TutorEntity tutorEntity = tutorMapper.toEntity(requestDto);
+
+        if (tutorRepository.existsByEmail(requestDto.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Tutor with email " +
+                    requestDto.getEmail() + " already exists");
+        }
 
         if (requestDto.getSubjectId() != null) {
             SubjectEntity subject = subjectRepository.findById(requestDto.getSubjectId())

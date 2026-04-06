@@ -69,7 +69,9 @@ public class TutorMapper {
     }
 
     public TutorResponseDto toResponseDtoFromNative(Object[] row) {
-        if (row == null) return null;
+        if (row == null) {
+            return null;
+        }
 
         TutorResponseDto dto = new TutorResponseDto();
 

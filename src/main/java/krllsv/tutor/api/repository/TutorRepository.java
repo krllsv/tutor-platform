@@ -31,4 +31,6 @@ public interface TutorRepository extends JpaRepository<TutorEntity, Long> {
                     + "WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :subjectName, '%'))",
             nativeQuery = true)
     Page<Object[]> findTutorsBySubjectNameNative(@Param("subjectName") String subjectName, Pageable pageable);
+
+    boolean existsByEmail(String email);
 }
