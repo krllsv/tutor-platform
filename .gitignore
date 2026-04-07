@@ -48,9 +48,19 @@ application-*.yml
 # Build
 dependency-reduced-pom.xml
 
-# Checkstyle (ДОБАВЛЕНО)
+# Checkstyle
 checkstyle.xml
 
-# Git attributes (ДОБАВЛЕНО)
+# Git attributes
 .gitattributes
+
+# Игнорировать папку с логами
+logs/
+*.log
+
+# Игнорировать другие временные файлы
+.idea/
+target/
+*.iml
+*.class
 
