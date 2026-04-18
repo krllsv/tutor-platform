@@ -3,6 +3,7 @@ package krllsv.tutor.api.service;
 import jakarta.persistence.EntityNotFoundException;
 import krllsv.tutor.api.cache.QueryCache;
 import krllsv.tutor.api.domain.Tutor;
+import krllsv.tutor.api.entity.ReviewEntity;
 import krllsv.tutor.api.entity.SubjectEntity;
 import krllsv.tutor.api.repository.SubjectRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import krllsv.tutor.api.repository.TutorRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -160,5 +162,50 @@ public class TutorService {
 
         queryCache.invalidateByEndpoint(ENDPOINT_BY_SUBJECT);
         queryCache.invalidateByEndpoint(ENDPOINT_BY_SUBJECT_NATIVE);
+    }
+
+    public List<TutorResponseDto> createTutorsBulkWithoutTransaction(List<TutorRequestDto> requestDtos) {
+        log.info("Bulk create WITHOUT @Transactional: {} tutors", requestDtos.size());
+
+        return requestDtos.stream()
+                .map(this::createTutor)
+                .toList();
+    }
+
+    @Transactional
+    public List<TutorResponseDto> createTutorsBulk(List<TutorRequestDto> requestDtos) {
+        log.info("Bulk create with @Transactional: {} tutors", requestDtos.size());
+
+        return requestDtos.stream()
+                .map(this::createTutor)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TutorResponseDto> getTutorsSortedByHourlyRate() {
+        log.info("Stream API: sorting tutors by hourly rate (cheapest first)");
+
+        return tutorRepository.findAll().stream()
+                .sorted(Comparator.comparing(TutorEntity::getHourlyRate))
+                .map(tutorMapper::toDomain)
+                .map(tutorMapper::toResponseDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TutorResponseDto> getTutorsByMinRating(double minRating) {
+        log.info("Stream API: filtering tutors with average rating >= {}", minRating);
+
+        return tutorRepository.findAll().stream()
+                .filter(t -> {
+                    double avgRating = t.getReviews().stream()
+                            .mapToInt(ReviewEntity::getRating)
+                            .average()
+                            .orElse(0.0);
+                    return avgRating >= minRating;
+                })
+                .map(tutorMapper::toDomain)
+                .map(tutorMapper::toResponseDto)
+                .toList();
     }
 }

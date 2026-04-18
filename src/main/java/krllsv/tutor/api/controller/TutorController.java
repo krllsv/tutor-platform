@@ -1,10 +1,12 @@
 package krllsv.tutor.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import krllsv.tutor.api.dto.request.TutorBulkRequestDto;
 import krllsv.tutor.api.dto.request.TutorRequestDto;
 import krllsv.tutor.api.dto.response.TutorResponseDto;
 import krllsv.tutor.api.service.TutorService;
@@ -125,4 +127,54 @@ public class TutorController {
         tutorService.deleteTutor(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/bulk")
+    @Operation(summary = "Массовое создание преподавателей",
+            description = "Создает несколько преподавателей за один запрос")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Преподаватели созданы"),
+            @ApiResponse(responseCode = "400", description = "Некорректные данные")
+    })
+    public ResponseEntity<List<TutorResponseDto>> createTutorsBulk(
+            @Valid @RequestBody TutorBulkRequestDto requestDto) {
+
+        List<TutorResponseDto> created = tutorService.createTutorsBulk(requestDto.getTutors());
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/bulk/without-tx")
+    @Operation(summary = "Массовое создание БЕЗ транзакции",
+            description = "Демонстрация частичного сохранения при ошибке")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Частично создано"),
+            @ApiResponse(responseCode = "500", description = "Ошибка, но часть данных сохранена")
+    })
+    public ResponseEntity<List<TutorResponseDto>> createTutorsBulkWithoutTransaction(
+            @Valid @RequestBody TutorBulkRequestDto requestDto
+    ) {
+        List<TutorResponseDto> result = tutorService.createTutorsBulkWithoutTransaction(requestDto.getTutors());
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/demo/stream/sorted-by-rate")
+    @Operation(summary = "Получить преподавателей, отсортированных по ставке",
+            description = "Демонстрация Stream API: sorted + Comparator")
+    @ApiResponse(responseCode = "200", description = "Список преподавателей успешно получен")
+    public ResponseEntity<List<TutorResponseDto>> getTutorsSortedByHourlyRate() {
+        return ResponseEntity.ok(tutorService.getTutorsSortedByHourlyRate());
+    }
+
+    @GetMapping("/demo/stream/by-rating")
+    @Operation(summary = "Получить преподавателей с рейтингом выше указанного",
+            description = "Демонстрация Stream API: filter с вычислением среднего рейтинга из отзывов")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Список преподавателей успешно получен"),
+            @ApiResponse(responseCode = "400", description = "Некорректный параметр")
+    })
+    public ResponseEntity<List<TutorResponseDto>> getTutorsByMinRating(
+            @Parameter(description = "Минимальный рейтинг", example = "4.0")
+            @RequestParam(defaultValue = "4.0") double minRating) {
+        return ResponseEntity.ok(tutorService.getTutorsByMinRating(minRating));
+    }
+
 }

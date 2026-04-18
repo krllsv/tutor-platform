@@ -20,7 +20,8 @@ public class BookingResponseDto {
     private int durationMinutes;
     @Schema(description = "Время окончания", example = "2024-03-20T16:00:00")
     private LocalDateTime endTime;
-    @Schema(description = "Статус бронирования", example = "PENDING", allowableValues = {"PENDING", "CONFIRMED", "CANCELLED", "COMPLETED"})
+    @Schema(description = "Статус бронирования", example = "PENDING",
+            allowableValues = {"PENDING", "CONFIRMED", "CANCELLED", "COMPLETED"})
     private String status;
     @Schema(description = "Сообщение", example = "Хочу разобрать домашнее задание")
     private String message;
