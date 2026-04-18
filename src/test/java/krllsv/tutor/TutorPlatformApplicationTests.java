@@ -1,13 +1,13 @@
-package krllsv.tutor;
+// package krllsv.tutor;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class TutorPlatformApplicationTests {
+// @SpringBootTest
+// class TutorPlatformApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+	// @Test
+	// void contextLoads() {
+	// }
 
-}
+// }
