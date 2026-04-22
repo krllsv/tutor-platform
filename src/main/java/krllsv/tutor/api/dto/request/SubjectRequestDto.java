@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class SubjectRequestDto {
     @NotBlank(message = "Название предмета обязательно")
     @Size(min = 2, max = 100, message = "Название должно быть от 2 до 100 символов")
-    @Schema(description = "Название предмета", example = "Математика", required = true)
+    @Schema(description = "Название предмета", example = "Математика")
     private String name;
     @Schema(description = "Категория предмета", example = "Точные науки")
     private String category;

@@ -11,11 +11,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class StudentMapper {
-    private final SubjectMapper subjectMapper;
-
-    public StudentMapper(SubjectMapper subjectMapper) {
-        this.subjectMapper = subjectMapper;
-    }
 
     public StudentEntity toEntity(StudentRequestDto dto) {
         if (dto == null) {

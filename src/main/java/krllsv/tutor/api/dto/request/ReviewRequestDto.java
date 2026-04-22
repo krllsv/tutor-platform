@@ -16,14 +16,14 @@ public class ReviewRequestDto {
     @NotNull(message = "Оценка обязательна")
     @Min(value = 1, message = "Оценка должна быть от 1 до 5")
     @Max(value = 5, message = "Оценка должна быть от 1 до 5")
-    @Schema(description = "Оценка от 1 до 5", example = "5", required = true)
+    @Schema(description = "Оценка от 1 до 5", example = "5")
     private Integer rating;
     @Schema(description = "Текст отзыва", example = "Отличный преподаватель!")
     private String comment;
     @NotNull(message = "ID студента обязателен")
-    @Schema(description = "ID студента", example = "1", required = true)
+    @Schema(description = "ID студента", example = "1")
     private Long studentId;
     @NotNull(message = "ID преподавателя обязателен")
-    @Schema(description = "ID преподавателя", example = "1", required = true)
+    @Schema(description = "ID преподавателя", example = "1")
     private Long tutorId;
 }

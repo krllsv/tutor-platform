@@ -131,9 +131,8 @@ public class TutorController {
     @PostMapping("/bulk")
     @Operation(summary = "Массовое создание преподавателей",
             description = "Создает несколько преподавателей за один запрос")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Преподаватели созданы"),
-            @ApiResponse(responseCode = "400", description = "Некорректные данные")
+    @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Преподаватели созданы"),
+                            @ApiResponse(responseCode = "400", description = "Некорректные данные")
     })
     public ResponseEntity<List<TutorResponseDto>> createTutorsBulk(
             @Valid @RequestBody TutorBulkRequestDto requestDto) {
@@ -145,9 +144,8 @@ public class TutorController {
     @PostMapping("/bulk/without-tx")
     @Operation(summary = "Массовое создание БЕЗ транзакции",
             description = "Демонстрация частичного сохранения при ошибке")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Частично создано"),
-            @ApiResponse(responseCode = "500", description = "Ошибка, но часть данных сохранена")
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Частично создано"),
+                            @ApiResponse(responseCode = "500", description = "Ошибка, но часть данных сохранена")
     })
     public ResponseEntity<List<TutorResponseDto>> createTutorsBulkWithoutTransaction(
             @Valid @RequestBody TutorBulkRequestDto requestDto
@@ -167,9 +165,8 @@ public class TutorController {
     @GetMapping("/demo/stream/by-rating")
     @Operation(summary = "Получить преподавателей с рейтингом выше указанного",
             description = "Демонстрация Stream API: filter с вычислением среднего рейтинга из отзывов")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Список преподавателей успешно получен"),
-            @ApiResponse(responseCode = "400", description = "Некорректный параметр")
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Список преподавателей успешно получен"),
+                            @ApiResponse(responseCode = "400", description = "Некорректный параметр")
     })
     public ResponseEntity<List<TutorResponseDto>> getTutorsByMinRating(
             @Parameter(description = "Минимальный рейтинг", example = "4.0")

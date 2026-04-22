@@ -20,18 +20,18 @@ import java.util.List;
 public class StudentRequestDto {
     @NotBlank(message = "Имя обязательно")
     @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")
-    @Schema(description = "Имя студента", example = "Иван", required = true)
+    @Schema(description = "Имя студента", example = "Иван")
     private String firstName;
     @NotBlank(message = "Фамилия обязательна")
     @Size(min = 2, max = 50, message = "Фамилия должна быть от 2 до 50 символов")
-    @Schema(description = "Фамилия студента", example = "Петров", required = true)
+    @Schema(description = "Фамилия студента", example = "Петров")
     private String lastName;
     @Pattern(regexp = "^\\+?[0-9\\s\\-()]{10,20}$", message = "Неверный формат телефона")
     @Schema(description = "Номер телефона", example = "+71234567890")
     private String phone;
     @NotBlank(message = "Email обязателен")
     @Email(message = "Неверный формат email")
-    @Schema(description = "Email", example = "ivan@mail.com", required = true)
+    @Schema(description = "Email", example = "ivan@mail.com")
     private String email;
     @DecimalMin(value = "0.0", message = "Бюджет не может быть отрицательным")
     @Schema(description = "Бюджет", example = "5000")
