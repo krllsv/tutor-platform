@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import krllsv.tutor.api.dto.request.TutorBulkRequestDto;
 import krllsv.tutor.api.dto.request.TutorRequestDto;
@@ -104,8 +105,9 @@ public class TutorController {
     @ApiResponse(responseCode = "200", description = "Успешно")
     @ApiResponse(responseCode = "404", description = "Преподаватель не найден")
     public ResponseEntity<TutorResponseDto> getTutorById(@PathVariable Long id) {
-        TutorResponseDto tutor = tutorService.getTutorById(id);
-        return ResponseEntity.ok(tutor);
+        return tutorService.getTutorById(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new EntityNotFoundException("Tutor with id " + id + " not found"));
     }
 
     @PutMapping("/{id}")

@@ -161,10 +161,10 @@ class TutorServiceTest {
         when(tutorMapper.toDomain(any(TutorEntity.class))).thenReturn(domainTutor);
         when(tutorMapper.toResponseDto(any(Tutor.class))).thenReturn(responseDto);
 
-        TutorResponseDto result = tutorService.getTutorById(1L);
+        Optional<TutorResponseDto> result = tutorService.getTutorById(1L);
 
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
+        assertTrue(result.isPresent());
+        assertEquals(1L, result.get().getId());
     }
 
     @Test

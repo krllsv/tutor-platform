@@ -22,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -120,11 +121,10 @@ public class TutorService {
     }
 
     @Transactional(readOnly = true)
-    public TutorResponseDto getTutorById(Long id) {
-        TutorEntity tutorEntity = tutorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Tutor with id " + id + NOT_FOUND));
-
-        return tutorMapper.toResponseDto(tutorMapper.toDomain(tutorEntity));
+    public Optional<TutorResponseDto> getTutorById(Long id) {
+        return tutorRepository.findById(id)
+                .map(tutorMapper::toDomain)
+                .map(tutorMapper::toResponseDto);
     }
 
     @Transactional
