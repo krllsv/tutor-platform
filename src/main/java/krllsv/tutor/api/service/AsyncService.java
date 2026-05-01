@@ -128,7 +128,7 @@ public class AsyncService {
                 }
 
                 int progress = (processed * 100) / total;
-                if (progress % 10 == 0 || processed == total) {
+                if (shouldUpdateStatus(progress, processed, total)) {
                     updateTaskStatus(taskId, STATUS_IN_PROGRESS, progress,
                             String.format("Processed %d of %d tutors", processed, total));
                 }
@@ -159,5 +159,9 @@ public class AsyncService {
             updateTaskError(taskId, "Task was interrupted: " + e.getMessage());
             return false;
         }
+    }
+
+    private boolean shouldUpdateStatus(int progress, int processed, int total) {
+        return progress % 10 == 0 || processed == total;
     }
 }

@@ -168,13 +168,6 @@ class TutorServiceTest {
     }
 
     @Test
-    void getTutorById_ShouldThrowException_WhenNotFound() {
-        when(tutorRepository.findById(999L)).thenReturn(Optional.empty());
-
-        assertThrows(RuntimeException.class, () -> tutorService.getTutorById(999L));
-    }
-
-    @Test
     void getAllTutors_ShouldReturnList() {
         when(tutorRepository.findAllWithSubject()).thenReturn(List.of(savedTutorEntity));
         when(tutorMapper.toDomain(any(TutorEntity.class))).thenReturn(domainTutor);
@@ -478,5 +471,15 @@ class TutorServiceTest {
         tutorService.getTutorsBySubjectName(subjectName, pageable);
 
         verify(tutorRepository).findTutorsBySubjectName(subjectName, pageable);
+    }
+
+    @Test
+    void getTutorById_ShouldReturnEmptyOptional_WhenNotFound() {
+        Long invalidId = 999L;
+        when(tutorRepository.findById(invalidId)).thenReturn(Optional.empty());
+
+        Optional<TutorResponseDto> result = tutorService.getTutorById(invalidId);
+
+        assertTrue(result.isEmpty());
     }
 }
