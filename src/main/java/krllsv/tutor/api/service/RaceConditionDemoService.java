@@ -59,7 +59,6 @@ public class RaceConditionDemoService {
 
         long endTime = System.currentTimeMillis();
         long executionTimeMs = endTime - startTime;
-
         long lostValues = expectedValue - unsafeCounter;
         double lostPercentage = (lostValues * 100.0) / expectedValue;
 
