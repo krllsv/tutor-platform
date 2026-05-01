@@ -123,12 +123,7 @@ public class AsyncService {
 
                 processed++;
 
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    log.error("Task {} was interrupted", taskId, e);
-                    updateTaskError(taskId, "Task was interrupted: " + e.getMessage());
+                if (!sleepWithInterruptionHandling(taskId, 1000)) {
                     return CompletableFuture.completedFuture(null);
                 }
 
@@ -152,5 +147,17 @@ public class AsyncService {
         }
 
         return CompletableFuture.completedFuture(null);
+    }
+
+    private boolean sleepWithInterruptionHandling(String taskId, long millis) {
+        try {
+            Thread.sleep(millis);
+            return true;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Task {} was interrupted during sleep", taskId, e);
+            updateTaskError(taskId, "Task was interrupted: " + e.getMessage());
+            return false;
+        }
     }
 }
