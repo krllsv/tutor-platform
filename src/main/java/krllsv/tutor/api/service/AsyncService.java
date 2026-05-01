@@ -19,6 +19,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class AsyncService {
 
+    private static final String STATUS_PENDING = "PENDING";
+    private static final String STATUS_IN_PROGRESS = "IN_PROGRESS";
+    private static final String STATUS_COMPLETED = "COMPLETED";
+    private static final String STATUS_FAILED = "FAILED";
+
+    private static final String OPERATION_BULK_RATE_UPDATE = "BULK_RATE_UPDATE";
+
     private final Map<String, AsyncTaskDto> taskStore = new ConcurrentHashMap<>();
     private final TutorRepository tutorRepository;
     private final AsyncService self;
@@ -33,7 +40,7 @@ public class AsyncService {
         String taskId = UUID.randomUUID().toString();
         AsyncTaskDto task = new AsyncTaskDto();
         task.setTaskId(taskId);
-        task.setStatus("PENDING");
+        task.setStatus(STATUS_PENDING);
         task.setOperationType(operationType);
         task.setProgress(0);
         task.setMessage("Task created, waiting to start");
@@ -57,7 +64,7 @@ public class AsyncService {
             task.setStatus(status);
             task.setProgress(progress);
             task.setMessage(message);
-            if (status.equals("COMPLETED") || status.equals("FAILED")) {
+            if (status.equals(STATUS_COMPLETED) || status.equals(STATUS_FAILED)) {
                 task.setCompletedAt(LocalDateTime.now());
             }
             log.info("Task {} updated: status={}, progress={}%", taskId, status, progress);
@@ -75,7 +82,7 @@ public class AsyncService {
         AsyncTaskDto task = taskStore.get(taskId);
         if (task != null) {
             task.setErrorMessage(errorMessage);
-            task.setStatus("FAILED");
+            task.setStatus(STATUS_FAILED);
             task.setCompletedAt(LocalDateTime.now());
             log.error("Task {} failed: {}", taskId, errorMessage);
         }
@@ -86,8 +93,8 @@ public class AsyncService {
     }
 
     public String updateAllTutorRatesAsync(double percentageIncrease) {
-        String taskId = createTask("BULK_RATE_UPDATE");
-        self.processTutorRateUpdate(taskId, percentageIncrease);  // ← вызов через self
+        String taskId = createTask(OPERATION_BULK_RATE_UPDATE);
+        self.processTutorRateUpdate(taskId, percentageIncrease);
         return taskId;
     }
 
@@ -96,13 +103,13 @@ public class AsyncService {
         log.info("Starting async rate update for tutors, taskId: {}, increase: {}%", taskId, percentageIncrease);
 
         try {
-            updateTaskStatus(taskId, "IN_PROGRESS", 0, "Starting rate update...");
+            updateTaskStatus(taskId, STATUS_IN_PROGRESS, 0, "Starting rate update...");
 
             java.util.List<TutorEntity> tutors = tutorRepository.findAll();
             int total = tutors.size();
 
             if (total == 0) {
-                updateTaskStatus(taskId, "COMPLETED", 100, "No tutors found");
+                updateTaskStatus(taskId, STATUS_COMPLETED, 100, "No tutors found");
                 updateTaskResult(taskId, "No tutors in database");
                 return CompletableFuture.completedFuture(null);
             }
@@ -115,18 +122,26 @@ public class AsyncService {
                 tutorRepository.save(tutor);
 
                 processed++;
-                Thread.sleep(1000);
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("Task {} was interrupted", taskId, e);
+                    updateTaskError(taskId, "Task was interrupted: " + e.getMessage());
+                    return CompletableFuture.completedFuture(null);
+                }
 
                 int progress = (processed * 100) / total;
                 if (progress % 10 == 0 || processed == total) {
-                    updateTaskStatus(taskId, "IN_PROGRESS", progress,
+                    updateTaskStatus(taskId, STATUS_IN_PROGRESS, progress,
                             String.format("Processed %d of %d tutors", processed, total));
                 }
             }
 
             String result = String.format("Successfully updated rates for %d tutors. Increase: %.1f%%",
                     total, percentageIncrease);
-            updateTaskStatus(taskId, "COMPLETED", 100, "Rate update completed");
+            updateTaskStatus(taskId, STATUS_COMPLETED, 100, "Rate update completed");
             updateTaskResult(taskId, result);
 
             log.info("Async rate update completed for task: {}", taskId);
