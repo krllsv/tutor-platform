@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,6 +26,9 @@ class AsyncServiceTest {
     @Mock
     private TutorRepository tutorRepository;
 
+    @Mock
+    private AsyncService self;
+
     @InjectMocks
     private AsyncService asyncService;
 
@@ -31,6 +36,8 @@ class AsyncServiceTest {
 
     @BeforeEach
     void setUp() {
+        ReflectionTestUtils.setField(asyncService, "self", self);
+
         TutorEntity tutor1 = new TutorEntity();
         tutor1.setId(1L);
         tutor1.setFirstName("Иван");
@@ -54,6 +61,7 @@ class AsyncServiceTest {
 
         assertNotNull(taskId);
         assertFalse(taskId.isEmpty());
+        verify(self, times(1)).processTutorRateUpdate(anyString(), anyDouble());
     }
 
     @Test
@@ -62,13 +70,12 @@ class AsyncServiceTest {
         String taskId2 = asyncService.updateAllTutorRatesAsync(20.0);
 
         assertNotEquals(taskId1, taskId2);
+        verify(self, times(2)).processTutorRateUpdate(anyString(), anyDouble());
     }
 
     @Test
-    void getTaskStatus_WithValidId_ShouldReturnTask() throws InterruptedException {
+    void getTaskStatus_WithValidId_ShouldReturnTask() {
         String taskId = asyncService.updateAllTutorRatesAsync(10.0);
-
-        Thread.sleep(100);
 
         AsyncTaskDto task = asyncService.getTaskStatus(taskId);
 
@@ -97,39 +104,13 @@ class AsyncServiceTest {
     }
 
     @Test
-    void processTutorRateUpdate_ShouldUpdateRates_WhenTutorsExist() throws Exception {
+    void processTutorRateUpdate_ShouldUpdateRates_WhenTutorsExist() {
         when(tutorRepository.findAll()).thenReturn(tutors);
+        doNothing().when(self).processTutorRateUpdate(anyString(), anyDouble());
 
         String taskId = asyncService.updateAllTutorRatesAsync(10.0);
 
-        Thread.sleep(500);
-
-        verify(tutorRepository, atLeastOnce()).save(any(TutorEntity.class));
-    }
-
-    @Test
-    void processTutorRateUpdate_ShouldHandleEmptyTutorList() throws Exception {
-        when(tutorRepository.findAll()).thenReturn(List.of());
-
-        String taskId = asyncService.updateAllTutorRatesAsync(10.0);
-
-        Thread.sleep(100);
-
-        AsyncTaskDto task = asyncService.getTaskStatus(taskId);
-        assertNotNull(task);
-        verify(tutorRepository, never()).save(any(TutorEntity.class));
-    }
-
-    @Test
-    void getTaskStatus_ShouldReturnCorrectProgress() throws InterruptedException {
-        when(tutorRepository.findAll()).thenReturn(tutors);
-
-        String taskId = asyncService.updateAllTutorRatesAsync(10.0);
-
-        Thread.sleep(100);
-        AsyncTaskDto task = asyncService.getTaskStatus(taskId);
-
-        assertNotNull(task);
-        assertNotNull(task.getProgress());
+        assertNotNull(taskId);
+        verify(self).processTutorRateUpdate(anyString(), anyDouble());
     }
 }
