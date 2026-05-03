@@ -27,7 +27,7 @@ public class CounterService {
         }
     }
 
-    public synchronized void resetSyncCounter() {
+    public void resetSyncCounter() {
         synchronized (object) {
             syncCounter = 0;
             log.info("Sync counter reset to 0");

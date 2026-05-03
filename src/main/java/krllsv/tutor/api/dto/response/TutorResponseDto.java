@@ -24,4 +24,6 @@ public class TutorResponseDto {
     private Long subjectId;
     @Schema(description = "Название предмета", example = "Математика")
     private String subjectName;
+    @Schema(description = "Почта", example = "prepod@gmail.com")
+    private String email;
 }

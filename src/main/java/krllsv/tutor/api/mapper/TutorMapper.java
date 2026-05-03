@@ -61,6 +61,7 @@ public class TutorMapper {
         dto.setFullname(tutor.getFirstName() + " " + tutor.getLastName());
         dto.setHourlyRate(tutor.getHourlyRate());
         dto.setExperienceYears(tutor.getExperienceYears());
+        dto.setEmail(tutor.getEmail());
         if (tutor.getSubject() != null) {
             dto.setSubjectId(tutor.getSubject().getId());
             dto.setSubjectName(tutor.getSubject().getName());
