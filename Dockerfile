@@ -1,7 +1,9 @@
 FROM node:20-alpine AS frontend-build
 WORKDIR /app
-COPY . .
-RUN cd frontend && npm install --legacy-peer-deps && npm run build
+COPY frontend/package*.json ./frontend/
+RUN cd frontend && npm install --legacy-peer-deps
+COPY frontend/ ./frontend/
+RUN cd frontend && npm run build
 
 FROM maven:3.9.6-eclipse-temurin-21 AS backend-build
 WORKDIR /app
@@ -12,6 +14,9 @@ RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
+
+RUN mkdir -p /app/logs && chmod 777 /app/logs
+
 COPY --from=backend-build /app/target/*.jar app.jar
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
