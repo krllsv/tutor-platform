@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RaceConditionDemoServiceTest {
-
     private RaceConditionDemoService raceConditionDemoService;
 
     @BeforeEach
