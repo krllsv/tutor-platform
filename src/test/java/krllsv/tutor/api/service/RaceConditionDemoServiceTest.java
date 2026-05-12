@@ -20,7 +20,6 @@ class RaceConditionDemoServiceTest {
 
     @BeforeEach
     void setUp() {
-        raceConditionDemoService = new RaceConditionDemoService();
     }
 
     @Test
