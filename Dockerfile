@@ -1,16 +1,13 @@
 FROM node:20-alpine AS frontend-build
 WORKDIR /app
-COPY frontend/package*.json ./
-RUN npm install --legacy-peer-deps
-COPY frontend/ ./
-RUN npm run build
+COPY . .
+RUN cd frontend && npm install --legacy-peer-deps && npm run build
 
 FROM maven:3.9.6-eclipse-temurin-21 AS backend-build
 WORKDIR /app
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
 COPY src ./src
-COPY --from=frontend-build /app/build ./src/main/resources/static
+COPY --from=frontend-build /app/frontend/build ./src/main/resources/static
 RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
