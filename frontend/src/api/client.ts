@@ -10,14 +10,12 @@ export const apiClient = axios.create({
     },
 });
 
-// Интерцептор для обработки ошибок
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         let errorMessage = 'Произошла ошибка';
 
         if (error.response) {
-            // Сервер вернул ответ с ошибкой
             if (error.response.data?.message) {
                 errorMessage = error.response.data.message;
             } else if (error.response.status === 409) {
@@ -30,10 +28,8 @@ apiClient.interceptors.response.use(
                 errorMessage = 'Ошибка сервера. Попробуйте позже';
             }
         } else if (error.request) {
-            // Запрос был сделан, но нет ответа
             errorMessage = 'Нет соединения с сервером. Убедитесь, что бэкенд запущен';
         } else {
-            // Ошибка при настройке запроса
             errorMessage = error.message || 'Произошла ошибка';
         }
 
