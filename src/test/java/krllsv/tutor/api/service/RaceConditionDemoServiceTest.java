@@ -17,7 +17,6 @@ class RaceConditionDemoServiceTest {
 
     @BeforeEach
     void setUp() {
-        // ✅ СОЗДАЁМ РЕАЛЬНЫЙ СЕРВИС
         raceConditionDemoService = new RaceConditionDemoService();
     }
 
