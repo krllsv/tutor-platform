@@ -3,6 +3,8 @@ WORKDIR /app
 COPY frontend/package*.json ./frontend/
 RUN cd frontend && npm install --legacy-peer-deps
 COPY frontend/ ./frontend/
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
 RUN cd frontend && npm run build
 
 FROM maven:3.9.6-eclipse-temurin-21 AS backend-build
