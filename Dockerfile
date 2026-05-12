@@ -1,17 +1,22 @@
-FROM maven:3.9-eclipse-temurin-21 AS builder
+FROM node:20-alpine AS frontend-build
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm ci --only=production
+COPY frontend/ ./
+RUN npm run build
+
+FROM maven:3.9.6-eclipse-temurin-21 AS backend-build
 WORKDIR /app
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 COPY src ./src
+COPY --from=frontend-build /app/frontend/build /app/src/main/resources/static
 RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-
-RUN mkdir -p /app/logs && chmod 777 /app/logs
-
-COPY --from=builder /app/target/*.jar app.jar
+COPY --from=backend-build /app/target/*.jar app.jar
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
