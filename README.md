@@ -1,71 +1,151 @@
-# ПЛАТФОРМА ПОИСКА И ВЫБОРА РЕПЕТИТОРОВ
+# TUTOR PLATFORM
 
-## REST API проект на Java, фреймворк Spring, Maven.
+### REST API проект на Java, фреймворк Spring, Maven. Платформа для поиска и бронирования занятий с репетиторами. 
 
-Проект предоставляет набор готовых программных функций (API-запросов), с помощью которых можно управлять каталогом репетиторов. Например, фронтенд-разработчик или мобильное приложение может использовать этот API, чтобы:
-1. Найти репетитора
-2. Посмотреть карточку преподавателя
-3. Добавить нового репетитора
+1. Подготовить Dockerfile для приложения.
+2. Подготовить Docker Compose (приложение + БД).
+3. Использовать переменные окружения.
+4. Разместить приложение на бесплатном хостинге (PaaS).
+5. Настроить CI/CD в GitHub:
+- сборка
+- тесты
+- развертывание
+- healthcheck
 
----
+## Технологический стек
 
-**1ЛАБА:**
-1. Создать Spring Boot приложение.
-2. Реализовать REST API для одной ключевой сущности своей предметной области (domain).
-3. Реализовать:
-   - GET endpoint с @RequestParam
-   - GET endpoint с @PathVariable
-4. Реализовать слои: Controller → Service → Repository.
-5. Реализовать DTO и mapper между Entity и API-ответом.
-6. Настроить Checkstyle и привести код к стилю.
+- **Java 21**
+- **Spring Boot 4.0.3**
+- **Spring Web / Validation / Data JPA / AOP / Actuator**
+- **PostgreSQL 17**
+- **Maven**
+- **Lombok**
+- **springdoc-openapi (Swagger UI)**
+- **React 18 / TypeScript 5 / Ant Design**
+- **Docker + Docker Compose**
+- **JaCoCo + Checkstyle + SonarCloud**
 
----
+# Быстрый старт
 
-**2ЛАБА:**
-1. Подключить реляционную БД к проекту.
-2. В модели данных реализовать минимум 5 сущностей:
-   - минимум одну связь OneToMany
-   - минимум одну связь ManyToMany
-3. Реализовать CRUD операции.
-4. Настроить и обосновать использование CascadeType и FetchType.
-5. Продемонстрировать проблему N+1 и решить её через @EntityGraph или fetch join.
-6. Реализовать метод, сохраняющий несколько связанных сущностей. Продемонстрировать частичное сохранение данных без @Transactional и полное откатывание операции с @Transactional при возникновении ошибки.
-7. Нарисовать ER-диаграмму с указанием PK/FK и связей.
+### Вариант 1: запуск через Docker Compose (рекомендуется)
 
----
+    
+```bash
+docker compose up --build
+```
 
-**3ЛАБА:**
-1. Реализовать сложный GET-запрос с фильтрацией по вложенной сущности с использованием @Query (JPQL).
-2. Реализовать аналогичный запрос через native query.
-3. Добавить пагинацию (Pageable).
-4. Реализовать in-memory индекс на основе HashMap<K, V> для ранее запрошенных данных. Ключ должен формироваться из параметров запроса (составной ключ). Обеспечить корректную работу индекса за счёт правильной реализации equals() и hashCode().
-5. Реализовать инвалидацию индекса при изменении данных.
+После запуска доступны:
+- API: `http://localhost:8080`
+- Swagger UI: `http://localhost:8080/swagger-ui.html`
+- Health check: `http://localhost:8080/actuator/health`
 
 ---
 
-**4ЛАБА:**
-1. Реализовать глобальную обработку ошибок через @ControllerAdvice.
-2. Добавить валидацию входных данных через @Valid.
-3. Реализовать единый формат ошибки для всех endpoint.
-4. Настроить логирование через logback:
-   - уровни логирования
-   - ротация логов
-5. Реализовать аспект (AOP) для логирования времени выполнения сервисных методов.
-6. Подключить Swagger/OpenAPI с описанием endpoint и DTO.
+### Вариант 2: локальный запуск (без Docker)
+
+1) Поднять PostgreSQL и создать БД `tutor_db`.
+
+2) Указать переменные окружения (или оставить дефолты).
+
+3) Запустить приложение:
+
+```bash
+mvn spring-boot:run
+```
 
 ---
 
-**5ЛАБА:**
-1. Реализовать bulk-операцию (POST со списком объектов), имеющую бизнес-смысл в рамках проекта.
-2. Использовать Stream API и Optional в сервисном слое.
-3. Обеспечить транзакционность bulk-операции. Продемонстрировать работу с/без @Transactional и показать разницу в состоянии БД.
-4. Написать unit-тесты для сервисов (Mockito)
+##  Переменные окружения
+
+| Переменная | По умолчанию | Назначение |
+|---|---:|---|
+| `APP_PORT` | `8080` | Порт приложения |
+| `SPRING_APPLICATION_NAME` | `tutor-platform` | Имя сервиса |
+| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://localhost:5432/tutor_db` | URL БД |
+| `SPRING_DATASOURCE_USERNAME` | `postgres` | Пользователь БД |
+| `SPRING_DATASOURCE_PASSWORD` | `your_password` | Пароль БД |
+| `SPRING_JPA_HIBERNATE_DDL_AUTO` | `update` | Стратегия схемы |
+| `SPRING_JPA_SHOW_SQL` | `true` | Логирование SQL |
+| `REACT_APP_API_URL` | `http://localhost:8080/api` | URL API для фронтенда |
+
+---
+
+## API overview
+
+Базовые группы endpoint’ов:
+
+- `GET/POST/PUT/DELETE /api/tutors`
+- `GET/POST/PUT/DELETE /api/students`
+- `GET/POST/PUT/DELETE /api/subjects`
+- `GET/POST/PUT/DELETE /api/bookings`
+- `GET/POST/PUT/DELETE /api/reviews`
+- `POST /api/async/tutors/update-rates`
+- `GET /api/async/tasks/{taskId}`
+- `GET /api/race-condition/demo`
+
+Полная спецификация: Swagger UI (`/swagger-ui.html`) и OpenAPI JSON (`/v3/api-docs`).
+
+---
+
+## Качество и эксплуатация
+
+- Unit + integration тесты на сервисный и API уровни.
+- Actuator health probes для readiness/liveness.
+- JaCoCo отчёты покрытия.
+- Checkstyle для единообразного кода.
+- SonarCloud для статического анализа.
+
+---
+
+## Контейнеризация
+
+Проект поставляется с готовыми:
+- `Dockerfile` (multi-stage build: фронтенд (Node.js) → бэкенд (Maven) → JRE runtime)
+- `docker-compose.yml` (приложение + PostgreSQL + healthchecks)
+
+Это даёт быстрый onboarding и предсказуемое окружение в любой среде.
+
+---
+
+## Roadmap
+
+- JWT/OAuth2 авторизация и ролевая модель (Admin/Tutor/Student).
+- Миграции Flyway/Liquibase вместо `ddl-auto`.
+- API versioning и backward compatibility policy.
+- Redis-кеш + rate limiting.
+
+---
+
+## Для разработчиков
+
+Полезные команды:
+
+```bash
+# Сборка бэкенда
+mvn clean package
+
+# Запуск тестов
+mvn test
+
+# Запуск приложения
+mvn spring-boot:run
+
+# Запуск через Docker
+docker-compose up --build
+
+# Запуск фронтенда
+cd frontend && npm install && npm start
+
+# Отчёт о покрытии
+mvn jacoco:report
+
+# Анализ SonarCloud
+mvn sonar:sonar -Dsonar.token=ваш_токен
+```
 
 ---
 
 **Сонар**: https://sonarcloud.io/projects
-
-**Swagger**: http://localhost:8080/swagger-ui/index.html
 
 ## ER-диаграмма
 
